@@ -1,0 +1,58 @@
+services:
+ 
+#WORDPRESS SERVICE
+  wordpress:
+    container_name: wordpress
+    image: wordpress:6.6.2-php8.1-fpm
+    ports:
+      - 9000:9000
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: testuser
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: testbase
+    volumes:
+      - ./wordpress:/var/www/html
+    depends_on:
+      - mysql
+
+#MYSQL SERVICE
+  mysql:
+    container_name: mysql
+    image: mysql
+    ports:
+    - 3306:3306
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpass
+      MYSQL_DATABASE: testbase
+
+#PHPMYADMIN SERVICE
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: mysql
+      UPLOAD_LIMIT: 100000000
+    depends_on:
+      - mysql
+
+  #NGINX SERVICE
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - '80:80'
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./logs/nginx:/var/log/nginx
+      - ./wordpress:/var/www/html
+    depends_on:
+      - wordpress
