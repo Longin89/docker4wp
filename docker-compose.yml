@@ -1,49 +1,40 @@
 services:
- 
-#WORDPRESS SERVICE
+  # WORDPRESS SERVICE
   wordpress:
     container_name: wordpress
-    image: wordpress:6.6.2-php8.1-fpm
+    image: wordpress:6.7.2-php8.3-fpm
     ports:
       - 9000:9000
     restart: always
     environment:
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DB_USER: testuser
-      WORDPRESS_DB_PASSWORD: testpass
-      WORDPRESS_DB_NAME: testbase
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
     volumes:
       - ./wordpress:/var/www/html
+      - ./php.ini:/usr/local/etc/php/conf.d/local.ini
     depends_on:
       - mysql
+    networks:
+      - app-network
 
-#MYSQL SERVICE
+  # MYSQL SERVICE
   mysql:
-    container_name: mysql
-    image: mysql
-    ports:
-    - 3306:3306
+    container_name: mariadb
+    image: mariadb:11.7.2
     volumes:
       - ./mysql-data:/var/lib/mysql
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_USER: testuser
-      MYSQL_PASSWORD: testpass
-      MYSQL_DATABASE: testbase
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - app-network
 
-#PHPMYADMIN SERVICE
-  phpmyadmin:
-    container_name: phpmyadmin
-    image: phpmyadmin
-    ports:
-      - 8080:80
-    environment:
-      PMA_HOST: mysql
-      UPLOAD_LIMIT: 100000000
-    depends_on:
-      - mysql
-
-  #NGINX SERVICE
+  # NGINX SERVICE
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -56,3 +47,9 @@ services:
       - ./wordpress:/var/www/html
     depends_on:
       - wordpress
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

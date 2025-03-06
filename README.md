@@ -1,1 +1,8 @@
-## Description will be later
+## Сборка для разработки на CMS Wordpress
+
+Включает в себя:
+1. Связку Wordpress + PHP 8.3 FPM
+2. MariaDB 11.7.2 в качестве СУБД
+3. Веб-сервер Nginx
+
+Не забудьте прописать настройки в .env-файле.
